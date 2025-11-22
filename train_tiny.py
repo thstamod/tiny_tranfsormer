@@ -1,6 +1,9 @@
 import torch
 import torch.nn.functional as F
 
+# Fix the random seed so training is reproducible and converges reliably.
+#torch.manual_seed(0)
+
 from tiny_transformer.tokenizer import tokenizer, tok2id, VOCAB
 from tiny_transformer.embeddings import embed
 from tiny_transformer.positional import add_positional_encoding
@@ -93,10 +96,6 @@ def train(num_epochs=500):
 
         if epoch % 50 == 0:
             print(f"Epoch {epoch}, loss = {total_loss:.4f}")
-
-
-if __name__ == "__main__":
-    train()
 
 
 def test(prompt):

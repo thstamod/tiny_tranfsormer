@@ -32,7 +32,7 @@ and restart the Python process so any tensors sized by vocabulary (like the
 embedding matrix) are recreated to match the new size.
 """
 
-VOCAB = ["Who", "created", "JavaScript", "?", "Brendan", "Guido", "Linus"]
+VOCAB = ["Who", "created", "JavaScript", "?", "Brendan", "Guido", "Linus", "Python", "Linux"]
 
 # token -> id: used to convert words to integer indices before embedding
 tok2id = {tok: i for i, tok in enumerate(VOCAB)}
