@@ -1,3 +1,4 @@
+# Simple feed-forward network used inside the transformer block (position-wise MLP)
 import torch
 import math
 from tiny_transformer.embeddings import embed
@@ -8,34 +9,42 @@ from tiny_transformer.attention import self_attention
 D_FF = 16
 D_MODEL = 8
 
+# First linear projects from model dim to a wider intermediate dim; second
+# projects back to model dim. Bias vectors are added after each linear.
 W1 = torch.randn(D_MODEL, D_FF, requires_grad=True)
 b1 = torch.randn(D_FF, requires_grad=True)
 W2 = torch.randn(D_FF, D_MODEL, requires_grad=True)
 b2 = torch.randn(D_MODEL, requires_grad=True)
 
+
 def feedforward(x):
-     # 1) First linear: x @ W1 + b1
-    h = x @ W1          # shape: [seq_len, D_FF]
-    h = h + b1          # b1 will broadcast over seq_len
+          """
+          Small position-wise feed-forward network used inside the transformer block.
 
-    # 2) ReLU
-    h = torch.relu(h)
+          Plain English:
+               - For each token independently, apply a small neural network: expand the
+                    vector dimension, apply a nonlinear function (ReLU), and reduce back.
+               - This lets the model mix dimensions and add non-linear features that the
+                    linear attention operation alone cannot produce.
 
-    # 3) Second linear: h @ W2 + b2
-    y = h @ W2          # shape: [seq_len, D_MODEL]
-    y = y + b2          # b2 broadcasts
+          Shapes:
+               - Input `x`: [seq_len, D_MODEL]
+               - After first linear: [seq_len, D_FF]
+               - After second linear / output: [seq_len, D_MODEL]
 
-    return y
+          Returns:
+               - y: [seq_len, D_MODEL]
+          """
 
+          # 1) First linear: x @ W1 + b1
+          h = x @ W1          # shape: [seq_len, D_FF]
+          h = h + b1          # b1 will broadcast over seq_len
 
+          # 2) Non-linearity (ReLU clamps negatives to zero)
+          h = torch.relu(h)
 
+          # 3) Second linear: h @ W2 + b2 -> back to model dimension
+          y = h @ W2          # shape: [seq_len, D_MODEL]
+          y = y + b2          # b2 broadcasts across the sequence dimension
 
-
-if __name__ == "__main__":
-    text = "Who created JavaScript ?"
-    ids = tokenizer(text)
-    x = embed(ids)  # shape (seq_len, D_MODEL)
-    x_pos = add_positional_encoding(x)
-    out = self_attention(x_pos)
-    e = feedforward(out)
-    print(e)
+          return y
