@@ -112,12 +112,3 @@ python -m tiny_transformer.train_tiny
 # quickly inspect a forward pass in interactive mode
 python -c "import tiny_transformer; from tiny_transformer.tokenizer import tokenizer; from tiny_transformer.predict import predict_next; print(predict_next('Who created JavaScript ?'))"
 ```
-
----
-
-If you'd like, I can:
-- Convert the globals into an `nn.Module` and update the training loop accordingly.
-- Add a `requirements.txt` or `pyproject.toml`.
-- Add a small saved example checkpoint and a script to load it.
-
-Tell me which of these you'd like next and I will continue.
